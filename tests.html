@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Çift Yarık — Fizik Testleri</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 48px 24px; background: #070a0d; color: #dfe7e5;
+    font: 14px/1.55 "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  main { max-width: 880px; margin: 0 auto; }
+  h1 { font-family: -apple-system, sans-serif; font-weight: 600; letter-spacing: -0.02em; }
+  .sub { color: #76827f; margin-bottom: 28px; }
+  .test { display: flex; gap: 14px; padding: 11px 0; border-bottom: 1px solid #16201e; }
+  .badge { flex: none; width: 54px; font-size: 10px; letter-spacing: .08em; padding-top: 3px; }
+  .pass { color: #67e8b9; }
+  .fail { color: #ff7b7b; }
+  .name { flex: 1; }
+  .detail { color: #76827f; font-size: 12px; margin-top: 2px; }
+  .summary { margin-top: 26px; padding: 18px; border: 1px solid #1d2a27; border-radius: 12px; }
+  .ok { color: #67e8b9; } .bad { color: #ff7b7b; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Fizik çekirdeği — doğrulama</h1>
+  <div class="sub">Fresnel integralleri, girişim modeli, örnekleyici, de Broglie.</div>
+  <div id="tests"></div>
+  <div class="summary" id="summary">Çalışıyor…</div>
+</main>
+<script src="js/physics.js"></script>
+<script>
+(function () {
+  const P = window.Physics;
+  const results = [];
+  const near = (a, b, tol) => Math.abs(a - b) <= tol;
+
+  function test(name, fn, detail) {
+    try {
+      const d = fn();
+      results.push({ name, ok: true, detail: d || detail || '' });
+    } catch (err) {
+      results.push({ name, ok: false, detail: err.message });
+    }
+  }
+  function assert(cond, msg) { if (!cond) throw new Error(msg || 'assertion failed'); }
+
+  test('Fresnel C(1), S(1)', () => {
+    const [c, s] = P.fresnelCS(1);
+    assert(near(c, 0.7798934004, 2e-8), 'C(1) = ' + c);
+    assert(near(s, 0.4382591474, 2e-8), 'S(1) = ' + s);
+    return `C=${c.toFixed(10)}  S=${s.toFixed(10)}`;
+  });
+
+  test('Fresnel C(2), S(2)', () => {
+    const [c, s] = P.fresnelCS(2);
+    assert(near(c, 0.4882534061, 2e-7), 'C(2) = ' + c);
+    assert(near(s, 0.3434156784, 2e-7), 'S(2) = ' + s);
+    return `C=${c.toFixed(10)}  S=${s.toFixed(10)}`;
+  });
+
+  test('Fresnel C(10), S(10) asimptotik', () => {
+    const [c, s] = P.fresnelCS(10);
+    assert(near(c, 0.4998986942, 1e-7), 'C(10) = ' + c);
+    assert(near(s, 0.4681699786, 1e-7), 'S(10) = ' + s);
+    return `C=${c.toFixed(10)}  S=${s.toFixed(10)}`;
+  });
+
+  test('Fresnel tek/çift fonksiyon simetrisi', () => {
+    const [c1, s1] = P.fresnelCS(2.345);
+    const [c2, s2] = P.fresnelCS(-2.345);
+    assert(near(c1, -c2, 1e-12) && near(s1, -s2, 1e-12), 'simetri bozuk');
+    return 'C(−x)=−C(x), S(−x)=−S(x)';
+  });
+
+  test('Uzak alan: Fresnel → Fraunhofer', () => {
+    const prm = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 2, V: 1 };
+    const z = 1.2;
+    const xs = [0, 0.1e-3, 1e-3, 2.55e-3, 5e-3, 12.8e-3];
+    let ratios = [];
+    for (const x of xs) {
+      const I = P.fresnelIntensity(x, z, prm);
+      const beta = Math.PI * prm.a * x / (prm.lambda * z);
+      const alpha = Math.PI * prm.d * x / (prm.lambda * z);
+      const F = (beta === 0 ? 1 : Math.sin(beta) / beta) * Math.cos(alpha);
+      ratios.push(I / (F * F));
+    }
+    const mean = ratios.reduce((s, v) => s + v, 0) / ratios.length;
+    const spread = Math.max(...ratios) / Math.min(...ratios) - 1;
+    assert(spread < 0.003, 'oran sapması ' + spread);
+    return `sabit oran = ${mean.toFixed(7)}, sapma = ${(spread * 100).toFixed(4)}%`;
+  });
+
+  test('Saçak konumları: yapıcı > yıkıcı', () => {
+    const prm = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 2, V: 1 };
+    const dy = P.fringeSpacing(prm.lambda, prm.d, prm.L);
+    const max = P.intensity(dy, prm);
+    const min = P.intensity(dy / 2, prm);
+    assert(max > min * 5, `max=${max}, min=${min}`);
+    return `Δy=${P.fmtLength(dy)}, I(max)/I(min)=${(max / min).toFixed(1)}`;
+  });
+
+  test('Tek yarık sıfırı: sin θ = λ/a', () => {
+    const prm = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 1, V: 1 };
+    const theta = Math.asin(prm.lambda / prm.a);
+    const y = prm.L * Math.tan(theta);
+    const I = P.intensity(y, prm);
+    assert(I < 1e-10, 'sıfır değil: ' + I);
+    return `y=${P.fmtLength(y)}, I=${I.toExponential(2)}`;
+  });
+
+  test('Görünürlük: V=0 merkezde 1/N', () => {
+    const base = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 2 };
+    const coh = P.intensity(0, { ...base, V: 1 });
+    const incoh = P.intensity(0, { ...base, V: 0 });
+    assert(near(incoh / coh, 0.5, 1e-9), 'oran ' + incoh / coh);
+    return `I(V=0)/I(V=1) = ${(incoh / coh).toFixed(6)}`;
+  });
+
+  test('Örnekleyici CDF ve sınırlar', () => {
+    const prm = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 2, V: 1 };
+    const S = P.makeSampler(prm, undefined, 4096);
+    assert(near(S.cdf[S.bins - 1], 1, 1e-12), 'CDF sonu ' + S.cdf[S.bins - 1]);
+    let sum = 0;
+    const N = 20000;
+    for (let i = 0; i < N; i++) {
+      const y = P.sampleSampler(S);
+      assert(Math.abs(y) <= S.halfWidth + 1e-12, 'aralık dışı');
+      sum += y;
+    }
+    const mean = sum / N;
+    assert(Math.abs(mean) < S.halfWidth * 0.01, 'ortalama ' + mean);
+    return `N=${N}, ortalama=${P.fmtLength(mean)}`;
+  });
+
+  test('de Broglie: elektron 100 eV', () => {
+    const r = P.deBroglie('electron', 100);
+    assert(near(r.lambda, 1.226e-10, 2e-13), 'λ=' + r.lambda);
+    return `λ = ${P.fmtLength(r.lambda)}`;
+  });
+
+  test('de Broglie: termal nötron 0.0253 eV', () => {
+    const r = P.deBroglie('neutron', 0.0253);
+    assert(near(r.lambda, 1.798e-10, 3e-13), 'λ=' + r.lambda);
+    return `λ = ${P.fmtLength(r.lambda)}`;
+  });
+
+  test('de Broglie: C60 100 eV', () => {
+    const r = P.deBroglie('c60', 100);
+    assert(r.lambda > 1e-13 && r.lambda < 1.2e-13, 'λ=' + r.lambda);
+    return `λ = ${P.fmtLength(r.lambda)}`;
+  });
+
+  test('Ekran genişliği ölçekleniyor', () => {
+    const p1 = { lambda: 532e-9, d: 0.25e-3, a: 0.06e-3, L: 1.2, N: 2 };
+    const p2 = { lambda: 532e-9, d: 0.5e-3, a: 0.06e-3, L: 1.2, N: 2 };
+    const w1 = P.screenHalfWidth(p1), w2 = P.screenHalfWidth(p2);
+    assert(w1 > 0 && w2 > 0 && w1 > w2, `${w1}, ${w2}`);
+    return `d=0.25mm → ${P.fmtLength(w1)}; d=0.5mm → ${P.fmtLength(w2)}`;
+  });
+
+  let html = '', passed = 0;
+  for (const r of results) {
+    if (r.ok) passed++;
+    html += `<div class="test"><div class="badge ${r.ok ? 'pass' : 'fail'}">${r.ok ? 'PASS' : 'FAIL'}</div>
+      <div class="name">${r.name}<div class="detail">${r.detail}</div></div></div>`;
+  }
+  document.getElementById('tests').innerHTML = html;
+  const all = passed === results.length;
+  document.getElementById('summary').innerHTML = all
+    ? `<span class="ok">✓ ${passed}/${results.length} test geçti.</span> Fizik çekirdeği doğrulandı.`
+    : `<span class="bad">✗ ${passed}/${results.length} test geçti.</span> Konsolu kontrol et.`;
+  window.__testResults = results;
+})();
+</script>
+</body>
+</html>

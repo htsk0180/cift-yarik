@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070a0d">
+<title>Çift Yarık — Etkileşimli Fizik Laboratuvarı</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ======================= ÜST ÇUBUK ======================= -->
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M3 17h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M12 4v9M12 21v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 12.5c4 0 3.2-4.5 7-4.5s3 4.5 7 4.5M12 21.5c4 0 3.2 4.5 7 4.5s3-4.5 7-4.5" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".55"/>
+        <circle cx="29" cy="8" r="1.1" fill="currentColor"/>
+        <circle cx="29" cy="17" r="1.1" fill="currentColor"/>
+        <circle cx="29" cy="26" r="1.1" fill="currentColor"/>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title">ÇİFT YARIK</span>
+        <span class="brand-sub">etkileşimli fizik laboratuvarı</span>
+      </div>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Deney modları">
+      <button class="tab is-active" role="tab" aria-selected="true" data-mode="buildup">
+        <span class="tab-num">01</span><span>Fotonlar</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-mode="wave">
+        <span class="tab-num">02</span><span>Dalga Alanı</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-mode="which">
+        <span class="tab-num">03</span><span>Hangi Yol?</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-mode="particle">
+        <span class="tab-num">04</span><span>Madde</span>
+      </button>
+      <button class="tab" role="tab" aria-selected="false" data-mode="theory">
+        <span class="tab-num">05</span><span>Teori</span>
+      </button>
+    </nav>
+
+    <div class="topmeta" aria-label="Güncel parametreler">
+      <span class="meta-item"><i>λ</i><b id="top-lambda">532 nm</b></span>
+      <span class="meta-sep"></span>
+      <span class="meta-item"><i>d</i><b id="top-d">0,25 mm</b></span>
+    </div>
+  </header>
+
+  <!-- ======================= ÇALIŞMA ALANI ======================= -->
+  <main class="workspace" id="workspace">
+
+    <!-- ---------- SOL: KONTROLLER ---------- -->
+    <aside class="panel controls" aria-label="Deney kontrolleri">
+      <div class="panel-head">
+        <span class="eyebrow">KONTROL</span>
+        <span class="panel-title">Deney parametreleri</span>
+      </div>
+      <div class="controls-scroll">
+
+        <!-- FOTONLAR -->
+        <div class="pane is-active" data-pane="buildup">
+          <div class="group">
+            <div class="group-head"><span>GEOMETRİ</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head">
+                <label>Yarık sayısı</label>
+                <output class="val">2</output>
+              </div>
+              <div class="seg" data-seg="N">
+                <button data-n="1">1</button><button data-n="2" class="is-active">2</button>
+                <button data-n="3">3</button><button data-n="5">5</button>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="b-d">Yarık aralığı <i>d</i></label><output class="val" id="b-d-v">0,25 <u>mm</u></output></div>
+              <input id="b-d" class="range" type="range" min="0.02" max="1" step="0.01" value="0.25" data-bind="d" data-kind="d-mm">
+              <div class="ctrl-foot"><span>0,02</span><span>1,0 mm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="b-a">Yarık genişliği <i>a</i></label><output class="val" id="b-a-v">0,060 <u>mm</u></output></div>
+              <input id="b-a" class="range" type="range" min="0.01" max="0.3" step="0.005" value="0.06" data-bind="a" data-kind="a-mm">
+              <div class="ctrl-foot"><span>0,01</span><span>0,30 mm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="b-L">Ekran uzaklığı <i>L</i></label><output class="val" id="b-L-v">1,20 <u>m</u></output></div>
+              <input id="b-L" class="range" type="range" min="0.2" max="5" step="0.05" value="1.2" data-bind="L" data-kind="L-m">
+              <div class="ctrl-foot"><span>0,2</span><span>5,0 m</span></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>IŞIK</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="b-lambda">Dalga boyu <i>λ</i></label><output class="val" id="b-lambda-v">532 <u>nm</u></output></div>
+              <input id="b-lambda" class="range spectral" type="range" min="380" max="700" step="1" value="532" data-bind="lambda" data-kind="lambda">
+              <div class="ctrl-foot"><span>380</span><span>700 nm</span></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>TUTARLILIK</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="b-V">Girişim görünürlüğü <i>V</i></label><output class="val" id="b-V-v">%100</output></div>
+              <input id="b-V" class="range" type="range" min="0" max="100" step="1" value="100" data-bind="V" data-kind="V-pct">
+              <div class="ctrl-foot"><span>0</span><span>1</span></div>
+            </div>
+            <p class="mini-note">V = 1 tam tutarlı; V = 0 hangi-yol bilgisi tam.</p>
+          </div>
+        </div>
+
+        <!-- DALGA ALANI -->
+        <div class="pane" data-pane="wave">
+          <div class="group">
+            <div class="group-head"><span>GEOMETRİ</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label>Yarık sayısı</label><output class="val">2</output></div>
+              <div class="seg" data-seg="N">
+                <button data-n="1">1</button><button data-n="2" class="is-active">2</button>
+                <button data-n="3">3</button><button data-n="5">5</button>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="w-d">Yarık aralığı <i>d</i></label><output class="val" id="w-d-v">0,25 <u>mm</u></output></div>
+              <input id="w-d" class="range" type="range" min="0.02" max="1" step="0.01" value="0.25" data-bind="d" data-kind="d-mm">
+              <div class="ctrl-foot"><span>0,02</span><span>1,0 mm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="w-a">Yarık genişliği <i>a</i></label><output class="val" id="w-a-v">0,060 <u>mm</u></output></div>
+              <input id="w-a" class="range" type="range" min="0.01" max="0.3" step="0.005" value="0.06" data-bind="a" data-kind="a-mm">
+              <div class="ctrl-foot"><span>0,01</span><span>0,30 mm</span></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>IŞIK</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="w-lambda">Dalga boyu <i>λ</i></label><output class="val" id="w-lambda-v">532 <u>nm</u></output></div>
+              <input id="w-lambda" class="range spectral" type="range" min="380" max="700" step="1" value="532" data-bind="lambda" data-kind="lambda">
+              <div class="ctrl-foot"><span>380</span><span>700 nm</span></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>EKRAN</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="w-z">Ekran konumu <i>z</i></label><output class="val" id="w-z-v">120 <u>mm</u></output></div>
+              <input id="w-z" class="range" type="range" min="2" max="200" step="1" value="120" data-bind="zScreen" data-kind="z-mm">
+              <div class="ctrl-foot"><span>2</span><span>200 mm</span></div>
+            </div>
+            <p class="mini-note">Haritadaki dikey çizgiyi sürükleyerek de ekranı taşıyabilirsin.</p>
+          </div>
+        </div>
+
+        <!-- HANGİ YOL -->
+        <div class="pane" data-pane="which">
+          <div class="group">
+            <div class="group-head"><span>İŞARETÇİ</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="q-theta">İşaretçi açısı <i>θ</i></label><output class="val" id="q-theta-v">22°</output></div>
+              <input id="q-theta" class="range" type="range" min="0" max="45" step="1" value="22" data-bind="theta" data-kind="theta-deg">
+              <div class="ctrl-foot"><span>0° · özdeş</span><span>45° · dik</span></div>
+            </div>
+            <button class="switch" id="q-analyzer" data-toggle="analyzer" aria-pressed="false">
+              <span class="switch-track"><span class="switch-thumb"></span></span>
+              <span class="switch-label">Analizörü aç <small>(quantum eraser)</small></span>
+            </button>
+            <p class="mini-note">İşaretçiler ±θ yönünde. 45°'de birbirine dik olur: yol bilgisi tam, girişim yok.</p>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>GEOMETRİ</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="q-d">Yarık aralığı <i>d</i></label><output class="val" id="q-d-v">0,25 <u>mm</u></output></div>
+              <input id="q-d" class="range" type="range" min="0.02" max="1" step="0.01" value="0.25" data-bind="d" data-kind="d-mm">
+              <div class="ctrl-foot"><span>0,02</span><span>1,0 mm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="q-a">Yarık genişliği <i>a</i></label><output class="val" id="q-a-v">0,060 <u>mm</u></output></div>
+              <input id="q-a" class="range" type="range" min="0.01" max="0.3" step="0.005" value="0.06" data-bind="a" data-kind="a-mm">
+              <div class="ctrl-foot"><span>0,01</span><span>0,30 mm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="q-L">Ekran uzaklığı <i>L</i></label><output class="val" id="q-L-v">1,20 <u>m</u></output></div>
+              <input id="q-L" class="range" type="range" min="0.2" max="5" step="0.05" value="1.2" data-bind="L" data-kind="L-m">
+              <div class="ctrl-foot"><span>0,2</span><span>5,0 m</span></div>
+            </div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>IŞIK</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="q-lambda">Dalga boyu <i>λ</i></label><output class="val" id="q-lambda-v">532 <u>nm</u></output></div>
+              <input id="q-lambda" class="range spectral" type="range" min="380" max="700" step="1" value="532" data-bind="lambda" data-kind="lambda">
+              <div class="ctrl-foot"><span>380</span><span>700 nm</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MADDE -->
+        <div class="pane" data-pane="particle">
+          <div class="group">
+            <div class="group-head"><span>PARÇACIK</span><span class="group-line"></span></div>
+            <div class="particle-grid" data-particles>
+              <button class="particle is-active" data-particle="electron"><b>e⁻</b><span>Elektron</span></button>
+              <button class="particle" data-particle="neutron"><b>n</b><span>Nötron</span></button>
+              <button class="particle" data-particle="proton"><b>p⁺</b><span>Proton</span></button>
+              <button class="particle" data-particle="c60"><b>C₆₀</b><span>Fulleren</span></button>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="p-K">Kinetik enerji <i>K</i></label><output class="val" id="p-K-v">1,00 <u>keV</u></output></div>
+              <input id="p-K" class="range" type="range" min="0" max="1000" step="1" value="500" data-bind="K" data-kind="K-log">
+              <div class="ctrl-foot"><span id="p-K-min">0,1 eV</span><span id="p-K-max">300 keV</span></div>
+            </div>
+            <p class="mini-note" id="p-rel-note">Relativistik düzeltme: <span>kapalı</span></p>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>GEOMETRİ</span><span class="group-line"></span></div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="p-d">Yarık aralığı <i>d</i></label><output class="val" id="p-d-v">1,00 <u>µm</u></output></div>
+              <input id="p-d" class="range" type="range" min="0" max="1000" step="1" value="500" data-bind="pd" data-kind="d-log">
+              <div class="ctrl-foot"><span>1 nm</span><span>100 µm</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-head"><label for="p-L">Ekran uzaklığı <i>L</i></label><output class="val" id="p-L-v">1,00 <u>m</u></output></div>
+              <input id="p-L" class="range" type="range" min="0" max="1000" step="1" value="500" data-bind="pL" data-kind="L-log">
+              <div class="ctrl-foot"><span>5 cm</span><span>20 m</span></div>
+            </div>
+            <div class="readonly-row"><span>Yarık genişliği</span><b>a = d / 4</b></div>
+          </div>
+
+          <div class="group">
+            <div class="group-head"><span>NOT</span><span class="group-line"></span></div>
+            <p class="mini-note">Aynı girişim yasası; sadece dalga boyu de Broglie bağıntısından geliyor. Ekran görünümü, gerçek ölçeğe göre büyütülür.</p>
+          </div>
+        </div>
+
+        <div class="panel-foot">
+          <span class="kbd-hint"><kbd>1</kbd>–<kbd>5</kbd> mod değiştir</span>
+          <span class="kbd-hint"><kbd>boşluk</kbd> ateşle</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ---------- ORTA: SAHNE ---------- -->
+    <section class="stage-card" aria-label="Deney görselleştirmesi">
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="base-canvas" aria-label="Deney ekranı"></canvas>
+        <canvas id="fx-canvas" aria-hidden="true"></canvas>
+        <div class="canvas-scrim"></div>
+        <div class="stage-head">
+          <div class="stage-heading">
+            <div class="stage-kicker"><span class="live-dot" id="live-dot"></span><span id="stage-kicker">TEK FOTON BİRİKİMİ</span></div>
+            <h1 class="stage-title" id="stage-title">Fotonlar</h1>
+          </div>
+          <div class="stage-stat">
+            <span class="stage-stat-value" id="stage-stat-value">0</span>
+            <span class="stage-stat-label" id="stage-stat-label">algılanan foton</span>
+          </div>
+        </div>
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+      </div>
+
+      <!-- Sahne alt çubuğu: moda göre JS doldurur -->
+      <div class="stage-bar" id="stage-bar"></div>
+    </section>
+
+    <!-- ---------- SAĞ: VERİ ---------- -->
+    <aside class="panel data" aria-label="Canlı ölçümler">
+      <div class="panel-head">
+        <span class="eyebrow">ÖLÇÜM</span>
+        <span class="panel-title">Canlı veriler</span>
+      </div>
+      <div class="data-scroll">
+        <div class="hero-stat">
+          <span class="stat-key" id="hero-key">Algılanan foton</span>
+          <span class="stat-big" id="hero-value">0</span>
+          <span class="stat-sub" id="hero-sub">N = 0</span>
+        </div>
+        <div class="stat-list" id="stat-list"></div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <span id="chart-title">Dağılım</span>
+            <span class="chart-legend" id="chart-legend"></span>
+          </div>
+          <canvas id="mini-canvas" aria-label="Ölçüm grafiği"></canvas>
+          <div class="chart-foot"><span id="chart-xmin">−27,7 mm</span><span>0</span><span id="chart-xmax">+27,7 mm</span></div>
+        </div>
+
+        <div class="formula-card">
+          <div class="formula-label">KULLANILAN BAĞINTI</div>
+          <div class="formula" id="formula"></div>
+        </div>
+
+        <div class="note-card">
+          <div class="note-dot"></div>
+          <p id="note"></p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- ======================= TEORİ ======================= -->
+  <section class="theory" id="theory" hidden>
+    <div class="theory-hero">
+      <div class="eyebrow">TEORİ · 1801 → BUGÜN</div>
+      <h1>İki yarık, <em>tek bir soru.</em></h1>
+      <p class="theory-lede">
+        Bir parçacık aynı anda iki yerden geçebilir mi? Çift yarık deneyi, fiziğin en basit
+        düzeneğiyle en tuhaf sorusunu sorar. 1801'de ışıkla başladı; bugün tek fotonlarla,
+        elektronlarla, nötronlarla ve 720 atomlu moleküllerle aynı yanıtı veriyor.
+      </p>
+      <div class="hero-equation">
+        <span class="eq-main">|ψ⟩ = |A⟩ + |B⟩</span>
+        <span class="eq-arrow">→</span>
+        <span class="eq-main">P(x) ∝ |ψ<sub>A</sub>(x) + ψ<sub>B</sub>(x)|²</span>
+      </div>
+      <div class="hero-meta">
+        <span><b>11</b> bölüm</span><span><b>3</b> grafik</span><span><b>0</b> dış bağımlılık</span>
+      </div>
+    </div>
+
+    <div class="theory-grid">
+      <aside class="toc" aria-label="İçindekiler">
+        <div class="toc-title">İÇİNDEKİLER</div>
+        <a href="#t-geometry" class="is-active"><span>01</span> Geometri ve yol farkı</a>
+        <a href="#t-cos2"><span>02</span> Neden cos²?</a>
+        <a href="#t-envelope"><span>03</span> Sonlu yarık: zarf</a>
+        <a href="#t-fresnel"><span>04</span> Fresnel ve Fraunhofer</a>
+        <a href="#t-single"><span>05</span> Tek foton</a>
+        <a href="#t-which"><span>06</span> Hangi yol?</a>
+        <a href="#t-eraser"><span>07</span> Quantum eraser</a>
+        <a href="#t-decoherence"><span>08</span> Dekoherans</a>
+        <a href="#t-matter"><span>09</span> Madde dalgaları</a>
+        <a href="#t-myths"><span>10</span> Yanlış anlamalar</a>
+        <a href="#t-reading"><span>11</span> Deneyler ve okuma</a>
+      </aside>
+
+      <article class="prose">
+        <section id="t-geometry">
+          <div class="sec-num">01</div>
+          <h2>Geometri ve yol farkı</h2>
+          <p>
+            Düzenek üç parçadan oluşur: tek renkli bir kaynak, üzerinde iki ince yarık bulunan
+            bir bariyer ve yarıklardan <i>L</i> kadar uzakta bir ekran. Yarık genişliği <i>a</i>,
+            merkezleri arasındaki uzaklık <i>d</i>'dir. Ekran üzerindeki bir noktaya iki yarıktan
+            gelen dalgalar farklı yol uzunlukları kat eder.
+          </p>
+
+          <figure class="figure">
+            <svg viewBox="0 0 760 270" role="img" aria-label="Çift yarık deneyinin geometrisi">
+              <defs>
+                <linearGradient id="beamGrad" x1="0" x2="1">
+                  <stop offset="0" stop-color="#67e8b9" stop-opacity="0"/>
+                  <stop offset="1" stop-color="#67e8b9" stop-opacity=".55"/>
+                </linearGradient>
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0L10 5L0 10z" fill="#7d8b88"/>
+                </marker>
+              </defs>
+              <rect x="34" y="116" width="46" height="38" rx="8" fill="none" stroke="#67e8b9" stroke-opacity=".55"/>
+              <text x="57" y="140" text-anchor="middle" fill="#a8b5b2" font-size="12" font-family="monospace">KAYNAK</text>
+              <path d="M82 135H300" stroke="url(#beamGrad)" stroke-width="1.5"/>
+              <path d="M300 42V101M300 108V162M300 169V228" stroke="#d9e4e1" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+              <path d="M300 135H686" stroke="#394542" stroke-width="1" stroke-dasharray="3 5"/>
+              <path d="M686 30V240" stroke="#e8f0ee" stroke-width="3" opacity=".8"/>
+              <path d="M300 101L650 128M300 162L650 128" stroke="#ffd479" stroke-width="1.2" opacity=".8"/>
+              <path d="M650 128L686 128" stroke="#ffd479" stroke-width="1.2" opacity=".5"/>
+              <circle cx="650" cy="128" r="4" fill="#ffd479"/>
+              <text x="660" y="122" fill="#ffd479" font-size="12" font-family="monospace">P</text>
+              <path d="M314 101v61" stroke="#7d8b88" stroke-width="1" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+              <text x="322" y="135" fill="#a8b5b2" font-size="12" font-family="monospace">d</text>
+              <path d="M300 248h350" stroke="#7d8b88" stroke-width="1" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+              <text x="470" y="264" text-anchor="middle" fill="#a8b5b2" font-size="12" font-family="monospace">L</text>
+              <path d="M610 128a60 60 0 0 0-6-24" fill="none" stroke="#67e8b9" stroke-width="1.2"/>
+              <text x="618" y="106" fill="#67e8b9" font-size="12" font-family="monospace">θ</text>
+              <path d="M300 108h8M300 162h8" stroke="#070a0d" stroke-width="7"/>
+              <text x="256" y="238" text-anchor="end" fill="#76827f" font-size="12" font-family="monospace">iki yarık</text>
+              <text x="688" y="254" fill="#76827f" font-size="12" font-family="monospace">ekran</text>
+              <text x="300" y="90" fill="#76827f" font-size="11" font-family="monospace">a</text>
+            </svg>
+            <figcaption>İki yarıktan P noktasına gelen yollar. Küçük açıda yol farkı Δ ≈ d sin θ ≈ d y / L.</figcaption>
+          </figure>
+
+          <div class="equation">
+            <div class="eq-body">r<sub>2</sub><sup>2</sup> − r<sub>1</sub><sup>2</sup> = (y + d/2)<sup>2</sup> − (y − d/2)<sup>2</sup> = 2yd</div>
+            <div class="eq-body">(r<sub>2</sub> − r<sub>1</sub>)(r<sub>2</sub> + r<sub>1</sub>) = 2yd &nbsp;⇒&nbsp; Δ ≈ <span class="eq-hl">d sin θ ≈ d y / L</span></div>
+          </div>
+
+          <p>
+            Burada <i>L</i> ≫ <i>d</i> ve <i>y</i> ≪ <i>L</i> yaklaşımı kullanıldı. Faz farkı
+            <i>φ</i> = <i>k</i>Δ = 2π<i>d</i> sin θ / <i>λ</i> olur. Yapıcı girişim, faz farkı
+            2π'nin tam katı olduğunda; yıkıcı girişim ise π'nin tek katı olduğunda gerçekleşir.
+          </p>
+
+          <div class="equation">
+            <div class="eq-body">Yapıcı: &nbsp; d sin θ = mλ &nbsp;⇒&nbsp; y<sub>m</sub> = m <span class="eq-hl">λL / d</span></div>
+            <div class="eq-body">Yıkıcı: &nbsp; d sin θ = (m + ½)λ &nbsp;⇒&nbsp; y = (m + ½) λL / d</div>
+          </div>
+
+          <div class="callout">
+            <div class="callout-title">Sayılarla</div>
+            <p>
+              <i>λ</i> = 532 nm, <i>d</i> = 0,25 mm, <i>L</i> = 1,2 m için saçak aralığı
+              <b>Δy = λL/d = 2,55 mm</b>. İlk yan saçak merkezden 2,55 mm, ikinci 5,10 mm
+              uzaklıktadır. Ekranın 1 cm'lik bir bölgesinde yaklaşık dört saçak görünür.
+            </p>
+          </div>
+
+          <p class="aside">
+            Küçük açı yaklaşımı terk edildiğinde gerçek maksimum konumu
+            <i>y<sub>m</sub></i> = <i>L</i> tan θ<sub>m</sub> olur; burada sin θ<sub>m</sub> =
+            <i>mλ/d</i>. Simülasyondaki şiddet hesabı bu daha doğru bağıntıyı kullanır.
+          </p>
+        </section>
+
+        <section id="t-cos2">
+          <div class="sec-num">02</div>
+          <h2>Neden cos²?</h2>
+          <p>
+            İki yarık özdeş ve eşit aydınlatılmışsa, ekrana gelen iki dalganın genliği aynıdır:
+            <i>A</i><sub>1</sub> = <i>A</i><sub>2</sub> = <i>A</i>. Toplam alan, karmaşık
+            sayılarla toplanır; şiddet genliğin karesidir.
+          </p>
+          <div class="equation">
+            <div class="eq-body">ψ = A e<sup>iφ₁</sup> + A e<sup>iφ₂</sup> = 2A e<sup>i(φ₁+φ₂)/2</sup> cos[(φ₁−φ₂)/2]</div>
+            <div class="eq-body">I = |ψ|² = 4A² cos²(Δφ/2) = 2A² [1 + cos Δφ]</div>
+          </div>
+          <p>
+            İşte ekrandaki parlak-sönük çizgilerin kaynağı bu <b>cos²</b> terimidir. İki dalga
+            aynı fazda geldiğinde genlikler toplanır (4<i>A</i>²); zıt fazda geldiğinde birbirini
+            yok eder (0). Toplam enerji korunur: girişim, enerjiyi ekranda yeniden dağıtır.
+          </p>
+
+          <div class="figure-grid">
+            <figure class="figure small">
+              <canvas class="theory-plot" data-plot="interference" height="120"></canvas>
+              <figcaption>Yalnız girişim terimi: cos²(πdy/λL).</figcaption>
+            </figure>
+            <figure class="figure small">
+              <canvas class="theory-plot" data-plot="envelope" height="120"></canvas>
+              <figcaption>Yalnız sonlu yarık zarfı: sinc²(πay/λL).</figcaption>
+            </figure>
+            <figure class="figure small">
+              <canvas class="theory-plot" data-plot="total" height="120"></canvas>
+              <figcaption>İkisinin çarpımı: gerçek ekran deseni.</figcaption>
+            </figure>
+          </div>
+
+          <p>
+            Görünürlük (visibility), saçakların ne kadar belirgin olduğunu ölçer:
+          </p>
+          <div class="equation">
+            <div class="eq-body">V = <span class="frac"><span>I<sub>max</sub> − I<sub>min</sub></span><span>I<sub>max</sub> + I<sub>min</sub></span></span></div>
+          </div>
+          <p>
+            Eşit genliklerde <i>V</i> = 1'dir. Genlikler eşit değilse
+            <i>V</i> = 2|<i>A</i><sub>1</sub><i>A</i><sub>2</sub>| / (<i>A</i><sub>1</sub>² +
+            <i>A</i><sub>2</sub>²) olur. Hangi-yol bilgisi, tutarlılık ve kaynak boyutu bu
+            görünürlüğü düşürür.
+          </p>
+
+          <details class="deep">
+            <summary>İleri düzey: N yarık ve girişim ızgarası</summary>
+            <p>
+              Eşit aralıklı <i>N</i> yarık için alanlar geometrik bir dizi oluşturur:
+            </p>
+            <div class="equation">
+              <div class="eq-body">ψ ∝ Σ<sub>n=0</sub><sup>N−1</sup> e<sup>inφ</sup> = <span class="frac"><span>sin(Nφ/2)</span><span>sin(φ/2)</span></span> e<sup>i(N−1)φ/2</sup></div>
+              <div class="eq-body">I ∝ <span class="frac"><span>sin²(Nφ/2)</span><span>sin²(φ/2)</span></span> = N² <span class="frac"><span>sin(Nα)</span><span>N sin α</span></span><sup>2</sup>, &nbsp; α = πd sin θ / λ</div>
+            </div>
+            <p>
+              Ana maksimumlar <i>φ</i> = 2π<i>m</i>'de, yani <i>d</i> sin θ = <i>mλ</i>'da
+              oluşur. Aralarında <i>N</i>−2 tane küçük ikincil maksimum ve <i>N</i>−1 tane sıfır
+              vardır. <i>N</i> büyüdükçe çizgiler keskinleşir: bu, spektroskopide kullanılan
+              kırınım ızgarasının temelidir.
+            </p>
+          </details>
+        </section>
+
+        <section id="t-envelope">
+          <div class="sec-num">03</div>
+          <h2>Sonlu yarık: zarf</h2>
+          <p>
+            Gerçek yarık nokta değildir; genişliği <i>a</i> kadardır. Yarığın farklı noktalarından
+            çıkan dalgalar da birbirleriyle girişir. Bu yüzden tek yarık bile uzak alanda bir
+            kırınım deseni üretir. Yarık içindeki konumu <i>x</i>′ ile gösterirsek:
+          </p>
+          <div class="equation">
+            <div class="eq-body">A(θ) ∝ ∫<sub>−a/2</sub><sup>a/2</sup> e<sup>ikx′ sin θ</sup> dx′
+              = a <span class="eq-hl">sinc(πa sin θ / λ)</span></div>
+          </div>
+          <p>
+            Burada sinc(<i>u</i>) = sin(<i>u</i>)/<i>u</i>. Şiddet, genliğin karesi olduğu için
+            <b>sinc²</b> zarfı ortaya çıkar. Zarfın ilk sıfırı sin θ = λ/<i>a</i>, yani yaklaşık
+            <i>y</i> = λ<i>L</i>/<i>a</i> konumundadır.
+          </p>
+          <div class="equation">
+            <div class="eq-body">I(y) ∝ sinc²(β) · <span class="eq-hl">[ (1−V)/N + V · (sin Nα / N sin α)² ]</span></div>
+            <div class="eq-body">β = πa y / λL, &nbsp; α = πd y / λL</div>
+          </div>
+          <p>
+            Bu tek satır, bu laboratuvarın ekran modelinin tamamıdır. İlk çarpan tek yarığın
+            kırınım zarfını, köşeli parantez ise <i>N</i> yarığın girişimini ve kısmi tutarlılığı
+            anlatır. <i>V</i> = 1 tam tutarlı, <i>V</i> = 0 tamamen tutarsız karışım demektir.
+          </p>
+          <p>
+            Zarf, popüler anlatımlarda sıkça atlanır. Oysa gerçek desende kenarlara doğru saçaklar
+            zayıflar; yeterince uzakta tamamen kaybolur. Merkezi zarfın içinde kalan saçak sayısı
+            yaklaşık <b>2d/a</b>'dır. Varsayılan değerlerde 2·0,25/0,06 ≈ 8 saçak görünür.
+          </p>
+          <div class="callout">
+            <div class="callout-title">Deneysel ipucu</div>
+            <p>
+              Ekranda çok sayıda eşit parlaklıkta saçak görüyorsan, yarık genişliği dalga boyuna
+              göre çok küçük demektir. Saçakların ortada parlak, kenarlarda sönük olması ise sonlu
+              yarık zarfının imzasıdır.
+            </p>
+          </div>
+        </section>
+
+        <section id="t-fresnel">
+          <div class="sec-num">04</div>
+          <h2>Fresnel ve Fraunhofer</h2>
+          <p>
+            Ekranı yarıklara yaklaştırdığında desen değişir. Çok yakında yarıkların geometrik
+            gölgesini ve kenarlarında ince Fresnel saçaklarını görürsün. Uzaklaştıkça desen
+            olgunlaşır ve genişliği <i>L</i> ile doğrusal büyüyen kararlı bir girişim desenine
+            dönüşür. Bu iki rejimin sınırını <b>Fresnel sayısı</b> belirler:
+          </p>
+          <div class="equation">
+            <div class="eq-body">F = <span class="frac"><span>a²</span><span>λL</span></span> &nbsp;&nbsp; (yarık ölçeğinde)</div>
+            <div class="eq-body">F ≫ 1: yakın alan (Fresnel) &nbsp;&nbsp;·&nbsp;&nbsp; F ≪ 1: uzak alan (Fraunhofer)</div>
+          </div>
+          <p>
+            Fraunhofer koşulu aynı zamanda <i>L</i> ≫ <i>d</i>²/<i>λ</i> olarak da yazılır.
+            Varsayılan değerlerde <i>d</i>²/<i>λ</i> ≈ 0,12 m; ekran 1,2 m uzakta olduğu için
+            rahatça uzak alandayız. Dalga Alanı modunda ekranı 2 mm'den 200 mm'ye kadar
+            sürükleyerek bu geçişi gerçek Fresnel integraliyle izleyebilirsin.
+          </p>
+          <details class="deep">
+            <summary>İleri düzey: Fresnel kırınım integrali</summary>
+            <p>
+              Paraksiyal yaklaşımda (küçük açılar, skaler alan) bir <i>z</i> düzlemindeki alan:
+            </p>
+            <div class="equation">
+              <div class="eq-body">U(x,z) = <span class="frac"><span>e<sup>ikz</sup></span><span>√(iλz)</span></span>
+                ∫ U(x′,0) exp[ ik(x−x′)² / 2z ] dx′</div>
+            </div>
+            <p>
+              Yarık sınırları içinde integral, Fresnel integralleri <i>C</i> ve <i>S</i> cinsinden
+              kapalı biçimde yazılabilir. <i>v</i> = √(2/λ<i>z</i>)·(<i>x</i>′−<i>x</i>) dönüşümüyle:
+            </p>
+            <div class="equation">
+              <div class="eq-body">U ∝ (1/√(2i)) Σ<sub>yarık</sub> [ ΔC + iΔS ], &nbsp;
+                C(v)+iS(v) = ∫<sub>0</sub><sup>v</sup> e<sup>iπt²/2</sup> dt</div>
+            </div>
+            <p>
+              Simülasyon bu integrali her piksel için hesaplar; <i>C</i> ve <i>S</i> için kuvvet
+              serisi (|v| ≤ 3,5) ve asimptotik açılım (|v| > 3,5) kullanır. Uzak alanda sonucun
+              Fraunhofer formülüne yakınsadığı testlerle doğrulanmıştır.
+            </p>
+          </details>
+        </section>
+
+        <section id="t-single">
+          <div class="sec-num">05</div>
+          <h2>Tek foton</h2>
+          <p>
+            1909'da G. I. Taylor, ışığı o kadar zayıflattı ki aynı anda yalnızca birkaç foton
+            düzeneğin içindeydi. Ekranda yine girişim çizgileri oluştu. 1980'lerden itibaren
+            tek foton kaynaklarıyla yapılan deneyler bunu kesinleştirdi: <b>her foton tek başına
+            kendisiyle girişir.</b>
+          </p>
+          <p>
+            Tek fotonun durumu iki yolun genliklerinin süperpozisyonudur:
+            |ψ⟩ = (|A⟩ + |B⟩)/√2. Ekranın <i>x</i> noktasındaki olasılık yoğunluğu Born kuralıyla
+            verilir:
+          </p>
+          <div class="equation">
+            <div class="eq-body">P(x) = |ψ(x)|² = |ψ<sub>A</sub>(x) + ψ<sub>B</sub>(x)|²</div>
+          </div>
+          <p>
+            Her dedektör tıklaması tek bir noktadır. Noktaların dağılımı, çok sayıda olay
+            biriktikçe |ψ|²'ye yakınsar. Bu, kuantum mekaniğinin olasılıksal doğasının en çıplak
+            gösterimidir: teori sana tek bir sonucu söylemez, sonuçların istatistiğini söyler.
+          </p>
+          <div class="callout">
+            <div class="callout-title">"Foton iki yarıktan da geçer" ne demek?</div>
+            <p>
+              Fotonun iki ayrı kopyası yoktur; ekranda asla iki noktaya birden çarpmaz. Doğru
+              ifade şudur: fotonun olasılık genliği iki yoldan da katkı alır. Hangi yoldan
+              geçtiğini ölçersen süperpozisyon bozulur ve girişim kaybolur. Ölçüm, "bilinmeyen
+              cevabı" ortaya çıkarmaz; yeni bir durum hazırlar.
+            </p>
+          </div>
+          <p>
+            Fotonlar arasında bir etkileşim gerekmez. İki foton aynı anda ekranda olsa bile
+            girişim, her fotonun kendi genliğinin kendisiyle toplanmasından doğar. Bu yüzden
+            deneyi "aynı anda tek foton" rejiminde yapmak şart değildir; ama tek foton rejimi,
+            klasik dalga açıklamasını devre dışı bıraktığı için kavramsal olarak çok değerlidir.
+          </p>
+        </section>
+
+        <section id="t-which">
+          <div class="sec-num">06</div>
+          <h2>Hangi yol?</h2>
+          <p>
+            Yarıkların önüne, her yolu ayrı ayrı işaretleyen dedektörler veya polarizasyon
+            filtreleri koyduğumuzu düşünelim. Fotonun yolu artık çevreyle dolanık hale gelir:
+          </p>
+          <div class="equation">
+            <div class="eq-body">|Ψ⟩ = <span class="frac"><span>1</span><span>√2</span></span>
+              ( |A⟩|m<sub>A</sub>⟩ + |B⟩|m<sub>B</sub>⟩ )</div>
+          </div>
+          <p>
+            Ekrandaki olasılık, işaretçi durumlarının iç çarpımıyla modüle olur:
+          </p>
+          <div class="equation">
+            <div class="eq-body">P(x) ∝ |ψ<sub>A</sub>|² + |ψ<sub>B</sub>|²
+              + 2 Re[ψ<sub>A</sub>ψ<sub>B</sub><sup>*</sup> ⟨m<sub>B</sub>|m<sub>A</sub>⟩]</div>
+          </div>
+          <p>
+            Eşit genliklerde girişim görünürlüğü <i>V</i> = |⟨m<sub>B</sub>|m<sub>A</sub>⟩| olur.
+            İşaretçi durumları özdeşse iç çarpım 1'dir ve tam girişim vardır. Birbirine dikse iç
+            çarpım 0'dır ve girişim tamamen kaybolur. Arada kalan durumlarda saçaklar soluklaşır.
+          </p>
+          <p>
+            Hangi yolu ne kadar iyi ayırt edebildiğimizi <b>D</b> ile gösterelim. Saf durumlar için
+            <i>D</i> = √(1−<i>V</i>²) ve dolayısıyla:
+          </p>
+          <div class="equation">
+            <div class="eq-body"><span class="eq-hl">V² + D² ≤ 1</span></div>
+          </div>
+          <p>
+            Bu, Englert'in tamamlayıcılık bağıntısıdır. Eşitlik, yol bilgisinin tamamen tutarlı
+            olduğu saf işaretçilerde sağlanır. Daha karmaşık (karışık) durumlarda toplam 1'den
+            küçük olabilir. Önemli olan, <i>V</i> ile <i>D</i>'nin aynı anda 1 olamamasıdır:
+            dalga ve parçacık davranışı aynı deneyde tam keskinlikte birlikte görünmez.
+          </p>
+          <div class="callout">
+            <div class="callout-title">Hangi-yol bilgisi "bilinç" değildir</div>
+            <p>
+              Girişimi bozan şey, bir insanın sonucu görmesi değil, yol bilgisinin fiziksel olarak
+              kaydedilmiş olmasıdır. Dedektör kaydı bir kutuya kilitlense, hatta hiç okunmasa bile
+              dolanıklık girişimi bozar. Bir kayıt varsa, "hangi yol" sorusunun cevabı doğada
+              yazılıdır.
+            </p>
+          </div>
+        </section>
+
+        <section id="t-eraser">
+          <div class="sec-num">07</div>
+          <h2>Quantum eraser</h2>
+          <p>
+            Peki işaretçi bilgisini ekrana çarpmadan önce "silersek" ne olur? İki yolu işaretleyen
+            polarizasyon durumlarını, yolları birbirine karıştıran bir analizörle yeniden
+            birleştirebiliriz. Bu durumda hangi yol bilgisi silinir ve girişim geri gelir.
+          </p>
+          <p>
+            Bu bedava değildir: analizör, fotonların yalnızca belirli bir kesrini geçirir.
+            İşaretçiler ±θ açısındaysa geçen foton oranı cos²θ olur. Yani girişim deseni geri
+            gelir, ama daha az fotonla. Toplam desene (analizörsüz tüm fotonlar) bakarsan girişim
+            yine görünmez; girişim yalnızca analizörden geçen alt kümede belirir.
+          </p>
+          <div class="equation">
+            <div class="eq-body">İşaretçisiz: V = |cos 2θ| &nbsp;&nbsp;·&nbsp;&nbsp;
+              Analizörlü: V = 1, &nbsp; geçiş = cos²θ</div>
+          </div>
+          <p>
+            Gecikmeli seçim (delayed-choice) deneylerinde bu "silme" kararı, foton ekrana
+            çarptıktan sonra bile verilebilir. Ama sonuç hep aynıdır: veriler alt kümelere
+            ayrıldığında girişim görünür, toplamda görünmez. Gelecekteki bir seçim geçmişteki
+            bir sonucu değiştirmez; sadece hangi alt kümeye bakacağını belirler. Bu, sinyal
+            göndermenin bir yolu değildir.
+          </p>
+          <div class="callout warn">
+            <div class="callout-title">Dikkat</div>
+            <p>
+              Buradaki gösterim, polarizasyon işaretçileriyle yapılan yerel bir "eraser"dır.
+              Kim ve arkadaşlarının 1999'daki gecikmeli seçim deneyiyle aynı ilkeyi gösterir,
+              ama birebir aynı düzenek değildir. "Geçmişi silmek" gibi ifadeler fiziksel değil,
+              pedagojik kısaltmalardır.
+            </p>
+          </div>
+        </section>
+
+        <section id="t-decoherence">
+          <div class="sec-num">08</div>
+          <h2>Dekoherans ve klasik dünya</h2>
+          <p>
+            Bir kuantum sistemi çevresiyle etkileştiğinde, çevre de hangi yol hakkında bilgi
+            taşımaya başlar. Fotonun havadaki moleküllerle, dedektörle veya kozmik mikrodalga
+            fonuyla etkileşimi, işaretçi durumlarını dikleştirir. Kısmi iz (reduced density
+            matrix) üzerindeki köşegen dışı terimler hızla söner. Buna <b>dekoherans</b> denir.
+          </p>
+          <div class="equation">
+            <div class="eq-body">ρ<sub>AB</sub> = ⟨m<sub>B</sub>|m<sub>A</sub>⟩ &nbsp;→&nbsp; 0
+              &nbsp;⇒&nbsp; girişim terimi kaybolur</div>
+          </div>
+          <p>
+            Makroskopik cisimlerde de Broglie dalga boyu inanılmaz küçüktür ve dekoherans süresi
+            akıl almaz kısadır. 1 gramlık bir toz tanesi için oda sıcaklığında termal dalga boyu
+            ~10<sup>−19</sup> m mertebesindedir; 1 m/s hızla giden bir beyzbol topu için ise
+            ~10<sup>−34</sup> m. Bu, bir atom çekirdeğinden milyarlarca kat küçüktür. Böyle bir
+            cismin iki yarıktan aynı anda geçmesi pratikte gözlenemez; ama bu, kuantum
+            mekaniğinin makroskopik dünyada "kapandığı" anlamına gelmez. Dekoherans, klasik
+            davranışın nasıl ortaya çıktığını açıklar; tek bir sonucun neden seçildiği ise
+            yorum tartışmasıdır.
+          </p>
+          <p>
+            Bu laboratuvarda "Hangi Yol?" modundaki görünürlük kaybı, tam da bu mantığın
+            denetlenebilir bir modelidir: yol bilgisi arttıkça girişim terimi küçülür.
+          </p>
+        </section>
+
+        <section id="t-matter">
+          <div class="sec-num">09</div>
+          <h2>Madde dalgaları</h2>
+          <p>
+            1924'te Louis de Broglie, her parçacığa bir dalga boyu eşlik etmesi gerektiğini öne
+            sürdü: <b>λ = h/p</b>. Üç yıl sonra Davisson ve Germer, elektronların kristal
+            yüzeylerden kırınımını görerek bunu doğruladı. Bugün elektron, nötron, atom ve
+            moleküllerle çift yarık deneyleri rutin.
+          </p>
+          <div class="equation">
+            <div class="eq-body">λ = <span class="frac"><span>h</span><span>p</span></span>
+              = <span class="frac"><span>hc</span><span>√[K(K + 2mc²)]</span></span></div>
+          </div>
+          <p>
+            Burada <i>K</i> kinetik enerji, <i>mc</i>² durgun kütle enerjisidir. Düşük enerjilerde
+            λ ≈ h/√(2mK) yaklaşımı yeterlidir; yüksek enerjilerde relativistik ifade gerekir.
+          </p>
+          <div class="data-table">
+            <div class="dt-row dt-head"><span>Parçacık</span><span>K</span><span>λ</span></div>
+            <div class="dt-row"><span>Elektron</span><span>100 eV</span><span>123 pm</span></div>
+            <div class="dt-row"><span>Nötron (termal)</span><span>0,0253 eV</span><span>180 pm</span></div>
+            <div class="dt-row"><span>C₆₀</span><span>100 eV</span><span>0,107 pm</span></div>
+            <div class="dt-row"><span>Beyzbol (145 g)</span><span>40 m/s</span><span>~10⁻³⁴ m</span></div>
+          </div>
+          <p>
+            Madde dalgalarının dalga boyu küçük olduğu için yarık aralığı da küçük olmalıdır:
+            elektronlar için nanometre, C₆₀ için yüz nanometre mertebesi. "Madde" sekmesinde
+            parçacığı ve enerjiyi değiştirerek saçak aralığının nasıl ölçeklendiğini görebilirsin.
+            Ekran görünümü gerçek ölçeğe göre büyütülür; ölçek çubuğu gerçek uzunluğu verir.
+          </p>
+        </section>
+
+        <section id="t-myths">
+          <div class="sec-num">10</div>
+          <h2>Yanlış anlamalar</h2>
+          <div class="myth-grid">
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Girişim için iki fotonun aynı anda ekranda olması gerekir."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Her foton kendi genliğiyle girişir; tek foton rejiminde de desen oluşur.</p>
+            </div>
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Gözlemci bilinci girişimi çökertir."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Yol bilgisinin fiziksel olarak kaydedilmesi yeterlidir; insan bilinci gerekmez.</p>
+            </div>
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Foton iki yarıktan da geçer, bu yüzden iki noktaya çarpar."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Genlik iki yoldan katkı alır; dedektör her zaman tek bir nokta kaydeder.</p>
+            </div>
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Quantum eraser geçmişe sinyal gönderir."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Yalnızca olaylar alt kümelere ayrılır; toplam desen değişmez, sinyal gönderilemez.</p>
+            </div>
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Hangi-yol dedektörü, fotonu fiziksel olarak ittiği için girişimi bozar."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Dolanıklık nedeniyle, dedektör fotonu hiç rahatsız etmeden de yol bilgisi girişimi bozabilir.</p>
+            </div>
+            <div class="myth">
+              <span class="myth-x">Yanlış</span>
+              <p>"Klasik dalga modeli yanlış olduğu için tek foton deneyi gerekir."</p>
+              <span class="myth-ok">Doğru</span>
+              <p>Klasik dalga modeli ekran desenini doğru verir; tek foton deneyi parçacık doğasını ve Born kuralını gösterir.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="t-reading">
+          <div class="sec-num">11</div>
+          <h2>Deneyler ve okuma</h2>
+          <p>
+            Bu simülasyondaki her mod, gerçek bir deney geleneğine dayanır:
+          </p>
+          <ul class="ref-list">
+            <li><b>1801 · Thomas Young</b> — Işığın girişimi; çift yarık deneyinin doğuşu.</li>
+            <li><b>1909 · G. I. Taylor</b> — Çok zayıf ışıkla girişim; fotonlar tek tek gelse de desen oluşuyor.</li>
+            <li><b>1961 · Claus Jönsson</b> — Elektronlarla çift yarık girişimi.</li>
+            <li><b>1986 · Aspect, Grangier, Roger</b> — Tek foton kaynağıyla girişim.</li>
+            <li><b>1989 · Akira Tonomura</b> — Elektron çift-yarık deneyi; tek tek elektronların birikimi.</li>
+            <li><b>1999 · Kim, Kulik, Shih, Scully</b> — Gecikmeli seçim quantum eraser.</li>
+            <li><b>1999 · Zeilinger ve ark.</b> — C₆₀ molekülleriyle girişim.</li>
+            <li><b>2019 · Arndt ve ark.</b> — Kütlesi 25 kDa'yı aşan moleküllerle girişim.</li>
+          </ul>
+          <p class="reading">
+            <b>Okuma:</b> R. P. Feynman, <i>The Feynman Lectures on Physics</i>, Cilt III, Bölüm 1;
+            A. Ananthaswamy, <i>Through Two Doors at Once</i>; G. Greenstein &amp; A. Zajonc,
+            <i>The Quantum Challenge</i>; M. O. Scully &amp; M. S. Zubairy, <i>Quantum Optics</i>.
+          </p>
+        </section>
+
+        <section id="t-method" class="method">
+          <div class="sec-num">+</div>
+          <h2>Bu simülasyon neyi hesaplıyor?</h2>
+          <p>
+            Ekran deseni, sonlu yarık için sinc² zarfı ve N-yarık girişim teriminin çarpımıyla
+            hesaplanır. Tek foton olayları, bu dağılımdan ters-CDF Monte Carlo yöntemiyle
+            örneklenir. Dalga Alanı modu, Fresnel kırınım integralini her piksel için Fresnel
+            integralleriyle çözer. Hesaplar skaler, paraksiyal ve tek renklidir; polarizasyon
+            yalnızca Hangi Yol? modelinde soyut bir işaretçi olarak temsil edilir. Dedektörler
+            ideal, yarıklar dikdörtgen ve aydınlatma düzgündür.
+          </p>
+          <p class="method-note">
+            Çekirdek: <code>js/physics.js</code> · Doğrulama: <a href="tests.html">tests.html</a> ·
+            Bağımlılık yok.
+          </p>
+        </section>
+      </article>
+    </div>
+
+    <footer class="theory-footer">
+      <span>ÇİFT YARIK · etkileşimli fizik laboratuvarı</span>
+      <span>λ = h/p olduğu sürece soru açık kalır.</span>
+    </footer>
+  </section>
+</div>
+
+<script src="js/physics.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
