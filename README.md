@@ -1,3 +1,4 @@
+https://cift-yarik.vercel.app/
 # Çift Yarık — Etkileşimli Fizik Laboratuvarı
 
 Tek fotonlardan Fresnel alanına, hangi-yol bilgisinden madde dalgalarına kadar çift yarık
